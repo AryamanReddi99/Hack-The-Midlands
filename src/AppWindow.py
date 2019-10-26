@@ -45,6 +45,7 @@ class AppWindow(QWidget):
         self.router.add_sink(self.blink_detector)
         self.router.start()
 
+
     @QtCore.pyqtSlot(np.ndarray)
     def update_image(self, image):
         rgbImage = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)

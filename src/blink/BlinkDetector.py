@@ -17,6 +17,7 @@ import imutils
 import time
 import dlib
 import cv2
+import collections
 
 def eye_aspect_ratio(eye):
     # compute the euclidean distances between the two sets of
@@ -35,13 +36,14 @@ def eye_aspect_ratio(eye):
     return ear
 
 class BlinkDetector(QtCore.QObject):
-    result = QtCore.pyqtSignal(np.ndarray)
-
-    # Graphing
-    ears = []
-    eyeopens = []
+    lowerthresh = []
+    upperthresh = []
+    ar_est = []
     ctrs = []
     ctr = 0
+    eyeopens = []
+
+    result = QtCore.pyqtSignal(np.ndarray)
 
     # define two constants, one for the eye aspect ratio to indicate
     # blink and then a second constant for the number of consecutive
@@ -57,7 +59,18 @@ class BlinkDetector(QtCore.QObject):
     COUNTER = 0
     TOTAL = 0
 
-    eyeopen = True
+    # Eye open state
+    eyeOpen = True
+
+    # Values used in detection algorithm
+    n = 0.0
+    sumN = 0.0
+    sumNSquared = 0.0
+    sampleWindow = collections.deque()
+
+    # Sample window size constants
+    WINDOW_SIZE = 500
+    WINDOW_SUBSET_SIZE = 200
 
     def __init__(self, file_shape_predictor):
         super(BlinkDetector, self).__init__()
@@ -74,7 +87,7 @@ class BlinkDetector(QtCore.QObject):
         (self.rStart, self.rEnd) = face_utils.FACIAL_LANDMARKS_IDXS["right_eye"]
 
     def handle(self, frame):
-        frame = imutils.resize(frame, width=450)
+        frame = imutils.resize(frame, width=1000)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         # detect faces in the grayscale frame
@@ -104,17 +117,42 @@ class BlinkDetector(QtCore.QObject):
             rightEyeHull = cv2.convexHull(rightEye)
             cv2.drawContours(frame, [leftEyeHull], -1, (0, 255, 0), 1)
             cv2.drawContours(frame, [rightEyeHull], -1, (0, 255, 0), 1)
-            # add ear value to list
-            self.ears.append(ear)
-            self.eyeopens.append(self.eyeopen)
-            self.ctrs.append(self.ctr)
-            self.ctr += 1
 
-            if self.eyeopen and ear < self.EYE_AR_THRESH_LOWER:
-                self.eyeopen = False
-            elif not self.eyeopen and ear > self.EYE_AR_THRESH_UPPER:
-                self.eyeopen = True
+            # Update totals
+            self.n += 1.0
+            self.sumN += ear
+            self.sumNSquared += ear*ear
+
+            # Update sliding window
+            self.sampleWindow.append(ear)
+            if len(self.sampleWindow) > WINDOW_SIZE:
+                self.sampleWindow.popleft()
+
+            # Calculate new std deviation
+            stdDev = np.sqrt(self.sumNSquared / self.n - (self.sumN / self.n) ** 2)
+
+            # Calculate mean of max subset
+            maxMean = np.mean(np.sort(np.array(list(self.sampleWindow)))[-1*WINDOW_SUBSET_SIZE:])
+
+            # Generate dynamic blink thresholds
+            threshLower = maxMean - 1.5 * stdDev
+            threshUpper = maxMean - 0.5 * stdDev
+
+            self.upperthresh.append(threshUpper)
+            self.lowerthresh.append(threshLower)
+            self.ar_est.append(ear)
+            self.ctrs.append(self.ctr)
+            self.ctr+=1
+
+            # Check if eye has changed state
+            if self.eyeOpen and ear < threshLower:
+                self.eyeOpen = False
+            elif not self.eyeOpen and ear > threshUpper:
+                self.eyeOpen = True
                 self.TOTAL += 1
+
+            self.eyeopens.append(self.eyeOpen)
+
             # check to see if the eye aspect ratio is below the blink
             # threshold, and if so, increment the blink frame counter
             if ear < self.EYE_AR_THRESH:
@@ -140,3 +178,10 @@ class BlinkDetector(QtCore.QObject):
 
         # show the frame
         self.result.emit(frame)
+
+    def plot(self):
+        plt.plot(self.ctrs, self.lowerthresh)
+        plt.plot(self.ctrs, self.upperthresh)
+        plt.plot(self.ctrs, self. ar_est)
+        plt.plot(self.ctrs, self.eyeopens)
+        plt.show()

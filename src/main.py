@@ -12,3 +12,5 @@ mainwindow = AppWindow()
 mainwindow.show()
 
 app.exec_()
+
+mainwindow.blink_detector.plot()
