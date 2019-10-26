@@ -25,7 +25,7 @@ class AppWindow(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle(blink_app)
+        self.setWindowTitle(APP_NAME)
         layout = QVBoxLayout()
         label = QLabel(APP_NAME)
 
