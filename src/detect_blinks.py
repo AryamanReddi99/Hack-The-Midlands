@@ -20,7 +20,7 @@ import imutils
 import time
 import dlib
 import cv2
-
+import collections
 
 def eye_aspect_ratio(eye):
     # compute the euclidean distances between the two sets of
@@ -52,6 +52,10 @@ sumn = 0.0
 sumnsq = 0.0
 ctrs = []
 ctr = 0
+
+window = collections.deque()
+
+mean_maxs = []
 
 ar_ests = []
 ar_est = 0.0
@@ -185,6 +189,10 @@ while True:
         eyeopens.append(eyeopen)
         ctrs.append(ctr)
         ctr += 1
+        mean_maxs.append(np.mean(np.array(sorted(list(window)[-150:]))))
+        window.append(ear)
+        if len(window) > 500:
+            window.popleft()
 
         if eyeopen and ear_filtered_der < EYE_AR_DER_THRESH_LOWER:
             eyeopen = False
@@ -232,6 +240,7 @@ plt.plot(ctrs, eyeopens)
 plt.plot(ctrs, filtered)
 plt.plot(ctrs, means)
 plt.plot(ctrs, stdevs)
+plt.plot(ctrs, mean_maxs)
 #plt.plot(ctrs, filtered_superlo)
 #plt.plot(ctrs, filtered_der)
 plt.plot(ctrs, ar_ests)
