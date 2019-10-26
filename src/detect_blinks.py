@@ -60,6 +60,8 @@ mean_maxs = []
 ar_ests = []
 ar_est = 0.0
 
+thresh_high = []
+thresh_low = []
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -178,10 +180,8 @@ while True:
             stdevs.append(0.0)
         else:
             means.append(sumn / ctr)
-            stdevs.append(means[-1] - 0.5*np.sqrt(sumnsq / ctr - (sumn / ctr)*(sumn / ctr)))
+            stdevs.append(np.sqrt(sumnsq / ctr - (sumn / ctr)*(sumn / ctr)))
 
-        ar_est = ear_filtered - means[-1]
-        ar_ests.append(ar_est)
         filtered.append(ear_filtered)
         filtered_der.append(ear_filtered_der)
         filtered_superlo.append(ear_filtered_superlo)
@@ -194,9 +194,16 @@ while True:
         if len(window) > 500:
             window.popleft()
 
-        if eyeopen and ear_filtered_der < EYE_AR_DER_THRESH_LOWER:
+        ar_est = ear
+        ar_ests.append(ar_est)
+
+        thresh_low.append(mean_maxs[-1] - 0.5 * stdevs[-1])
+        thresh_high.append(mean_maxs[-1])
+        
+
+        if eyeopen and ar_est < thresh_low[-1]:
             eyeopen = False
-        elif not eyeopen and ear_filtered > EYE_AR_DER_THRESH_UPPER:
+        elif not eyeopen and ar_est > thresh_high[-1]:
             eyeopen = True
             TOTAL += 1
         # check to see if the eye aspect ratio is below the blink
@@ -238,11 +245,13 @@ vs.stop()
 plt.plot(ctrs, ears)
 plt.plot(ctrs, eyeopens)
 plt.plot(ctrs, filtered)
-plt.plot(ctrs, means)
-plt.plot(ctrs, stdevs)
+#plt.plot(ctrs, means)
+#plt.plot(ctrs, stdevs)
 plt.plot(ctrs, mean_maxs)
 #plt.plot(ctrs, filtered_superlo)
 #plt.plot(ctrs, filtered_der)
 plt.plot(ctrs, ar_ests)
+plt.plot(ctrs, thresh_high)
+plt.plot(ctrs, thresh_low)
 plt.show()
 
