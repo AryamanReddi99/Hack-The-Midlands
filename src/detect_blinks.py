@@ -42,8 +42,20 @@ def eye_aspect_ratio(eye):
 # Graphing
 ears = []
 eyeopens = []
+filtered = []
+filtered_der = []
+filtered_superlo = []
+ear_filtered_superlo = 0.2
+means = []
+stdevs = []
+sumn = 0.0
+sumnsq = 0.0
 ctrs = []
 ctr = 0
+
+ar_ests = []
+ar_est = 0.0
+
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -62,6 +74,11 @@ EYE_AR_CONSEC_FRAMES = 3
 # Eye upper and lower threshold for eye open-close detection
 EYE_AR_THRESH_UPPER = 0.2
 EYE_AR_THRESH_LOWER = 0.15
+
+# Eye AR derivative threshold for open/close detection
+EYE_AR_DER_THRESH_UPPER = 0.015
+EYE_AR_DER_THRESH_LOWER = -0.015
+
 
 # initialize the frame counters and the total number of blinks
 COUNTER = 0
@@ -135,14 +152,43 @@ while True:
         cv2.drawContours(frame, [leftEyeHull], -1, (0, 255, 0), 1)
         cv2.drawContours(frame, [rightEyeHull], -1, (0, 255, 0), 1)
         # add ear value to list
+        if len(filtered) == 0:
+            ear_filtered = ear
+            ear_filtered_der = 0.0
+        else:
+            ear_filtered = 0.2 * ear + 0.8 * filtered[-1]
+            if len(filtered_der) == 0:
+                ear_filtered_der = ear_filtered - filtered[-1]
+            else:
+                ear_filtered_der = 0.2 * (ear_filtered - filtered[-1]) + 0.8 * filtered_der[-1]
+
+        if len(filtered_superlo) == 0:
+            ear_filtered_superlo = ear
+        else:
+            ear_filtered_superlo = 0.001 * ear + 0.999 * filtered_superlo[-1]
+
+        sumn += ear
+        sumnsq += ear*ear
+        if ctr == 0:
+            means.append(sumn)
+            stdevs.append(0.0)
+        else:
+            means.append(sumn / ctr)
+            stdevs.append(means[-1] - 0.5*np.sqrt(sumnsq / ctr - (sumn / ctr)*(sumn / ctr)))
+
+        ar_est = ear_filtered - means[-1]
+        ar_ests.append(ar_est)
+        filtered.append(ear_filtered)
+        filtered_der.append(ear_filtered_der)
+        filtered_superlo.append(ear_filtered_superlo)
         ears.append(ear)
         eyeopens.append(eyeopen)
         ctrs.append(ctr)
         ctr += 1
 
-        if eyeopen and ear < EYE_AR_THRESH_LOWER:
+        if eyeopen and ear_filtered_der < EYE_AR_DER_THRESH_LOWER:
             eyeopen = False
-        elif not eyeopen and ear > EYE_AR_THRESH_UPPER:
+        elif not eyeopen and ear_filtered > EYE_AR_DER_THRESH_UPPER:
             eyeopen = True
             TOTAL += 1
         # check to see if the eye aspect ratio is below the blink
@@ -183,5 +229,11 @@ vs.stop()
 
 plt.plot(ctrs, ears)
 plt.plot(ctrs, eyeopens)
+plt.plot(ctrs, filtered)
+plt.plot(ctrs, means)
+plt.plot(ctrs, stdevs)
+#plt.plot(ctrs, filtered_superlo)
+#plt.plot(ctrs, filtered_der)
+plt.plot(ctrs, ar_ests)
 plt.show()
 
