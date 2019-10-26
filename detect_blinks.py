@@ -13,6 +13,7 @@ from scipy.spatial import distance as dist
 from imutils.video import FileVideoStream
 from imutils.video import VideoStream
 from imutils import face_utils
+from matplotlib import pyplot as plt
 import numpy as np
 import argparse
 import imutils
@@ -38,6 +39,12 @@ def eye_aspect_ratio(eye):
     return ear
 
 
+# Graphing
+ears = []
+eyeopens = []
+ctrs = []
+ctr = 0
+
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--shape-predictor", required=True,
@@ -52,9 +59,15 @@ args = vars(ap.parse_args())
 EYE_AR_THRESH = 0.3
 EYE_AR_CONSEC_FRAMES = 3
 
+# Eye upper and lower threshold for eye open-close detection
+EYE_AR_THRESH_UPPER = 0.2
+EYE_AR_THRESH_LOWER = 0.15
+
 # initialize the frame counters and the total number of blinks
 COUNTER = 0
 TOTAL = 0
+
+eyeopen = True
 
 # initialize dlib's face detector (HOG-based) and then create
 # the facial landmark predictor
@@ -89,6 +102,8 @@ while True:
     # it, and convert it to grayscale
     # channels)
     frame = vs.read()
+    if frame is None:
+        break
     frame = imutils.resize(frame, width=450)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -119,7 +134,17 @@ while True:
         rightEyeHull = cv2.convexHull(rightEye)
         cv2.drawContours(frame, [leftEyeHull], -1, (0, 255, 0), 1)
         cv2.drawContours(frame, [rightEyeHull], -1, (0, 255, 0), 1)
+        # add ear value to list
+        ears.append(ear)
+        eyeopens.append(eyeopen)
+        ctrs.append(ctr)
+        ctr += 1
 
+        if eyeopen and ear < EYE_AR_THRESH_LOWER:
+            eyeopen = False
+        elif not eyeopen and ear > EYE_AR_THRESH_UPPER:
+            eyeopen = True
+            TOTAL += 1
         # check to see if the eye aspect ratio is below the blink
         # threshold, and if so, increment the blink frame counter
         if ear < EYE_AR_THRESH:
@@ -130,8 +155,8 @@ while True:
         else:
             # if the eyes were closed for a sufficient number of
             # then increment the total number of blinks
-            if COUNTER >= EYE_AR_CONSEC_FRAMES:
-                TOTAL += 1
+            #if COUNTER >= EYE_AR_CONSEC_FRAMES:
+            #    TOTAL += 1
 
             # reset the eye frame counter
             COUNTER = 0
@@ -154,3 +179,9 @@ while True:
 # do a bit of cleanup
 cv2.destroyAllWindows()
 vs.stop()
+
+
+plt.plot(ctrs, ears)
+plt.plot(ctrs, eyeopens)
+plt.show()
+
