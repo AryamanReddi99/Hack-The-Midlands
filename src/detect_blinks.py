@@ -3,7 +3,7 @@
 # This file is created from source code and examples taken from
 # https://www.pyimagesearch.com/2017/04/24/eye-blink-detection-opencv-python-dlib/
 #
-# This demo uses the pretrained shape predictor values found here:
+# This demo uses the pre-trained shape predictor values found here:
 # http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2
 # This site explains how to train your own shape predictor:
 # http://dlib.net/face_landmark_detection.py.html
