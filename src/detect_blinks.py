@@ -169,6 +169,7 @@ while True:
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
     # show the frame
+    print(frame)
     cv2.imshow("Frame", frame)
     key = cv2.waitKey(1) & 0xFF
 

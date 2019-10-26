@@ -19,4 +19,8 @@ layout.addWidget(btn_blink)
 window.setLayout(layout)
 window.show()
 
+from AppWindow import *
+mainwindow = AppWindow()
+mainwindow.show()
+
 app.exec_()
