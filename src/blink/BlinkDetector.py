@@ -125,14 +125,14 @@ class BlinkDetector(QtCore.QObject):
 
             # Update sliding window
             self.sampleWindow.append(ear)
-            if len(self.sampleWindow) > WINDOW_SIZE:
+            if len(self.sampleWindow) > self.WINDOW_SIZE:
                 self.sampleWindow.popleft()
 
             # Calculate new std deviation
             stdDev = np.sqrt(self.sumNSquared / self.n - (self.sumN / self.n) ** 2)
 
             # Calculate mean of max subset
-            maxMean = np.mean(np.sort(np.array(list(self.sampleWindow)))[-1*WINDOW_SUBSET_SIZE:])
+            maxMean = np.mean(np.sort(np.array(list(self.sampleWindow)))[-1*self.WINDOW_SUBSET_SIZE:])
 
             # Generate dynamic blink thresholds
             threshLower = maxMean - 1.5 * stdDev
