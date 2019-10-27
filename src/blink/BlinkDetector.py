@@ -135,11 +135,12 @@ class BlinkDetector(QtCore.QObject):
             # Calculate mean of max subset
             maxMean = np.mean(np.sort(np.array(list(self.sampleWindow)))[-1*self.WINDOW_SUBSET_SIZE:])
 
-            median = sorted(list(self.sampleWindow))[len(self.sampleWindow)//2]
+            # Calculate the median(ish) - the point 2/3 through the sorted data
+            medianish = sorted(list(self.sampleWindow))[(len(self.sampleWindow) * 2)//3]
 
             # Generate dynamic blink thresholds
-            threshLower = median - 1.5 * stdDev
-            threshUpper = median - 0.5 * stdDev
+            threshLower = medianish - 1.5 * stdDev
+            threshUpper = medianish - 0.5 * stdDev
 
             self.upperthresh.append(threshUpper)
             self.lowerthresh.append(threshLower)
