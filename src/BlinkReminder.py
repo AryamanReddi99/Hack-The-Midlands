@@ -6,7 +6,7 @@ class BlinkReminder():
     timers = []
 
     def __init__(self, blinkSource):
-        self.timerSettings.extend([(20, self.sendCalmMsg), (40, self.sendAngryMsg)])
+        self.timerSettings.extend([(5, self.sendCalmMsg), (10, self.sendAngryMsg)])
         for ts in self.timerSettings:
             self.timers.append(Timer(*ts))
         blinkSource.subscribe(blinkSource, self.handleBlink)
