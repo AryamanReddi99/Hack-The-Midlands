@@ -91,7 +91,7 @@ class BlinkDetector(QtCore.QObject):
 
     @QtCore.pyqtSlot(np.ndarray)
     def handle_frame(self, frame):
-        frame = imutils.resize(frame, width=1000)
+        frame = imutils.resize(frame, width=450)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         # detect faces in the grayscale frame
@@ -156,8 +156,8 @@ class BlinkDetector(QtCore.QObject):
                 self.eyeOpen = False
             elif not self.eyeOpen and ear > threshUpper:
                 self.eyeOpen = True
-                for s in subscriberCallbacks:
-                    s()
+                #for s in self.subscriberCallbacks:
+                #    s()
                 self.TOTAL += 1
 
             self.eyeopens.append(self.eyeOpen)
@@ -196,4 +196,4 @@ class BlinkDetector(QtCore.QObject):
         plt.show()
 
     def subscribe(self, fn):
-        subscriberCallbacks.append(fn)
+        self.subscriberCallbacks.append(fn)
