@@ -3,6 +3,9 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import *
 from PyQt5 import QtGui
 
+#Temporary, will be removed when blink number implemented
+import time
+
 from blink.ImageRouter import *
 from blink.BlinkDetector import *
 
@@ -14,12 +17,21 @@ def make_call():
     from_ = secrets['twilio']['phone_number']
     to = config['user']['phone_number']
     client = Client(account_sid, auth_token)
-
-    call = client.calls.create(
-                            url='http://demo.twilio.com/docs/voice.xml',
-                            to=to,
-                            from_=from_
-                            )
+    now = time.time()
+    while (time.time() < now + 40):
+        print(time.time())
+        if (time.time() == (now + 5)):
+            call = client.calls.create(
+                                    url='https://handler.twilio.com/twiml/EHf78588c67173c8830e80c1845f1ffe87',
+                                    to=to,
+                                    from_=from_
+                                    )
+        if (time.time() == (now + 20)):
+            call = client.calls.create(
+                                    url='https://handler.twilio.com/twiml/EH7513cf20a7590d433e34dcc02bfa8788',
+                                    to=to,
+                                    from_=from_
+                                    )
 
 class AppWindow(QWidget):
     def __init__(self):
@@ -66,3 +78,4 @@ class AppWindow(QWidget):
         h = self.imageview.height()
         w = self.imageview.width()
         self.imageview.setPixmap(QPixmap.fromImage(qtImage).scaled(h, w, QtCore.Qt.KeepAspectRatio))
+
