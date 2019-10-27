@@ -9,6 +9,8 @@ import time
 from blink.ImageRouter import *
 from blink.BlinkDetector import *
 
+from BlinkReminder import *
+
 from blink_app import secrets, config, APP_NAME
 
 def make_call():
@@ -71,6 +73,10 @@ class AppWindow(QWidget):
         self.blink_detector.moveToThread(self.route_thread)
         self.router.on_frame.connect(self.blink_detector.handle_frame)
         self.blink_detector.result.connect(self.update_image)
+
+        # H@K3RY 1Z H3R3
+        # Create BlinkReminder (needs a better name than that)
+        self.blink_reminder = BlinkReminder(BlinkDetector)
 
         # Start ImageRouter
         self.route_thread.start()

@@ -72,6 +72,9 @@ class BlinkDetector(QtCore.QObject):
     WINDOW_SIZE = 500
     WINDOW_SUBSET_SIZE = 200
 
+    # Listener threads' callback functions
+    subscriberCallbacks = []
+
     def __init__(self, file_shape_predictor):
         super(BlinkDetector, self).__init__()
 
@@ -153,6 +156,8 @@ class BlinkDetector(QtCore.QObject):
                 self.eyeOpen = False
             elif not self.eyeOpen and ear > threshUpper:
                 self.eyeOpen = True
+                for s in subscriberCallbacks:
+                    s()
                 self.TOTAL += 1
 
             self.eyeopens.append(self.eyeOpen)
@@ -189,3 +194,6 @@ class BlinkDetector(QtCore.QObject):
         plt.plot(self.ctrs, self. ar_est)
         plt.plot(self.ctrs, self.eyeopens)
         plt.show()
+
+    def subscribe(self, fn):
+        subscriberCallbacks.append(fn)
