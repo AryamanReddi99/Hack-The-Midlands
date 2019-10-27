@@ -86,7 +86,8 @@ class BlinkDetector(QtCore.QObject):
         (self.lStart, self.lEnd) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
         (self.rStart, self.rEnd) = face_utils.FACIAL_LANDMARKS_IDXS["right_eye"]
 
-    def handle(self, frame):
+    @QtCore.pyqtSlot(np.ndarray)
+    def handle_frame(self, frame):
         frame = imutils.resize(frame, width=1000)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -134,7 +135,7 @@ class BlinkDetector(QtCore.QObject):
             # Calculate mean of max subset
             maxMean = np.mean(np.sort(np.array(list(self.sampleWindow)))[-1*self.WINDOW_SUBSET_SIZE:])
 
-            median = sorted(list(self.sampleWindow))[len(self.sampleWindow)/2]
+            median = sorted(list(self.sampleWindow))[len(self.sampleWindow)//2]
 
             # Generate dynamic blink thresholds
             threshLower = median - 1.5 * stdDev
