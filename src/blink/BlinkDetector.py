@@ -156,8 +156,8 @@ class BlinkDetector(QtCore.QObject):
                 self.eyeOpen = False
             elif not self.eyeOpen and ear > threshUpper:
                 self.eyeOpen = True
-                #for s in self.subscriberCallbacks:
-                #    s()
+                for s in self.subscriberCallbacks:
+                    s()
                 self.TOTAL += 1
 
             self.eyeopens.append(self.eyeOpen)

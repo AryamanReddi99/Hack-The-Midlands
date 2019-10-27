@@ -28,6 +28,8 @@ class AppWindow(QWidget):
         self.imageview.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         layout.addWidget(self.imageview)
 
+        self.setLayout(layout)
+
         # Create and register ImageRouter on its own QThread
         self.router = ImageRouter()
         self.route_thread = QtCore.QThread()
