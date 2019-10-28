@@ -1,8 +1,12 @@
 # Hack-The-Midlands
 Our Hack-The-Midlands project
 
-## Demo
-https://photos.app.goo.gl/SKEQ5dtMnQW5dn646
+## Description
+Blinkbot and NodOff are two projects that we developed at HackTheMidlands 4.0 2019 which center around improving computer user health and accessibility. Blinkbot detects the user's blinking frequency and alerts them if they need to blink more. NodOff allows a user to log off their system simply by nodding twice at their screen. Blinkbot uses Twilio's phonecall API. Both use OpenCV and Dlib.  
+
+**Videos**  
+Blinkbot: https://photos.app.goo.gl/SKEQ5dtMnQW5dn646  
+NodOff: https://photos.app.goo.gl/wdv5hSbbBGJmdpCN9
 
 ## Requirements
 - Python >=3.5
