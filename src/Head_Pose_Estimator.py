@@ -5,6 +5,9 @@ import numpy as np
 from imutils import face_utils
 import matplotlib.pyplot as plt
 import ctypes
+import time
+
+print('hello')
 
 face_landmark_path = './shape_predictor_68_face_landmarks.dat'
 
@@ -87,14 +90,17 @@ def check_routine_lock(pitch_angles,lowthresh,highthresh,nod_length, nod_count,s
     else:
         if state != states[-1]:
             states.append(state)
-    if len(states) == 4:
-        print('hello')
+    if len(states) >5:
+        print('goodbye!')
+        time.sleep(1)
+        
         states = []
         ctypes.windll.user32.LockWorkStation()
     
-    if check_pose(pitch_angles,lowthresh,highthresh,nod_length=20) == 'State1' or check_pose(pitch_angles,lowthresh,highthresh,nod_length=20) == 'State2':
+    if check_pose(pitch_angles,lowthresh,highthresh,nod_length=30) == 'State1' or check_pose(pitch_angles,lowthresh,highthresh,nod_length=30) == 'State2':
 #        print('hi')
-        nod_count = 0
+        #states = []
+        pass
     elif check_pose(pitch_angles,lowthresh,highthresh,nod_length) == 'State1':
         nod_count +=1 
     elif check_pose(pitch_angles,lowthresh,highthresh,nod_length) == 'State2':
@@ -104,10 +110,10 @@ def check_routine_lock(pitch_angles,lowthresh,highthresh,nod_length, nod_count,s
     return(nod_count,states)
 
 def check_pose(pitch_angles, lowthresh, highthresh, nod_length):
-    if len(pitch_angles) < 5:
-        state = 'State0'
+    if len(pitch_angles) < 4:
+        state = 'State2'
     #if all(pitch > lowthresh for pitch in pitch_angles[-nod_length:]):
-    if pitch_angles[-1] > lowthresh:
+    elif pitch_angles[-1] > lowthresh:
         state = 'State1'
     else:
         state = 'State2'
