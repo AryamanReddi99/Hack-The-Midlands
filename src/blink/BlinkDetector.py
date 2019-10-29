@@ -91,7 +91,7 @@ class BlinkDetector(QtCore.QObject):
 
     @QtCore.pyqtSlot(np.ndarray)
     def handle_frame(self, frame):
-        frame = imutils.resize(frame, width=450)
+        frame = imutils.resize(frame, width=600)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         # detect faces in the grayscale frame

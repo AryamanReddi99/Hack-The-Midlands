@@ -1,4 +1,3 @@
-from twilio.rest import Client
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import *
 from PyQt5 import QtGui
@@ -11,7 +10,7 @@ from blink.BlinkDetector import *
 
 from BlinkReminder import *
 
-from blink_app import secrets, config, APP_NAME
+from blink_app import APP_NAME
 
 class AppWindow(QWidget):
     def __init__(self):

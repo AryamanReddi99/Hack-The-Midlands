@@ -30,3 +30,5 @@ def workspace_down():
     else:
         print("Not implemented for this platform")
 
+def minimize():
+    pg.hotkey('winleft', 'down')
